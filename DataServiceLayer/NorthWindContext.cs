@@ -22,7 +22,7 @@ namespace DataServiceLayer
         protected override void OnConfiguring(DbContextOptionsBuilder b)
         {
 
-            b.UseNpgsql("Host=localhost;Database=northwind;Username=postgres;Password=2RJ&Ao2g@qJy0Vk6;Include Error Detail=true")
+            b.UseNpgsql("Host=localhost;Database=northwind;Username=postgres;Password=2RJ&Ao2g@qJy0Vk6;Include Error Detail=true;Client Encoding=UTF8")
 
             .EnableSensitiveDataLogging();
         }
@@ -35,7 +35,7 @@ namespace DataServiceLayer
             {
                 e.ToTable("categories");
                 e.HasKey(x => x.Id);
-                e.Property(x => x.Id).HasColumnName("categoryid").ValueGeneratedOnAdd();
+                e.Property(x => x.Id).HasColumnName("categoryid").ValueGeneratedOnAdd().UseIdentityByDefaultColumn();
                 e.Property(x => x.Name).HasColumnName("categoryname").IsRequired();
                 e.Property(x => x.Description).HasColumnName("description");
             });
