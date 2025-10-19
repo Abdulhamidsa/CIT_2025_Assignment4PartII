@@ -6,6 +6,10 @@ namespace DataServiceLayer.DTOs
         public string? Name { get; set; }
         public int CategoryId { get; set; }
         public decimal? UnitPrice { get; set; }
+        public string? QuantityPerUnit { get; set; }
+        public int UnitsInStock { get; set; }
+        public CategoryDto? Category { get; set; }
+        public string? CategoryName { get; set; }
         public bool Discontinued { get; set; }
     }
 }
