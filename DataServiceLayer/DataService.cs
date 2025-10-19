@@ -60,8 +60,13 @@ public class DataService
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("Name is required.", nameof(name));
 
+        // Get the next available ID manually since auto-increment might not be working
+        var maxId = _db.Categories.AsNoTracking().Max(c => (int?)c.Id) ?? 0;
+        var nextId = maxId + 1;
+
         var entity = new Category
         {
+            Id = nextId,
             Name = name,
             Description = description
         };
@@ -267,13 +272,28 @@ public class DataService
             .Select(od => new OrderDetailWithProductDto
             {
                 ProductId = od.ProductId,
-                ProductName = od.Product.Name,
+                ProductName = od.Product!.Name,
                 UnitPrice = od.UnitPrice,
                 Quantity = od.Quantity,
                 Discount = od.Discount,
                 CategoryName = od.Product.Category != null
                     ? od.Product.Category.Name
-                    : null
+                    : null,
+                Product = new ProductDto
+                {
+                    Id = od.Product.Id,
+                    Name = od.Product.Name,
+                    UnitPrice = od.Product.UnitPrice,
+                    QuantityPerUnit = od.Product.QuantityPerUnit,
+                    UnitsInStock = od.Product.UnitsInStock,
+                    CategoryId = od.Product.CategoryId,
+                    Category = od.Product.Category != null ? new CategoryDto
+                    {
+                        Id = od.Product.Category.Id,
+                        Name = od.Product.Category.Name,
+                        Description = od.Product.Category.Description
+                    } : null
+                }
             })
             .AsNoTracking()
             .ToList();
@@ -286,18 +306,16 @@ public class DataService
         return _db.OrderDetails
             .AsNoTracking()
             .Where(od => od.ProductId == productId)
-            .OrderBy(od => od.Order.Date)     // <— primary sort so First() matches the test
-            .ThenBy(od => od.OrderId)         // tiebreaker to keep it deterministic
+            .OrderBy(od => od.OrderId)         // order by OrderId as the comment suggests
             .Select(od => new OrderDetailForProductDto
             {
                 Order = new OrderForTestDto
                 {
-                    Date = (DateTime)od.Order.Date      // use your actual property name (Date vs OrderDate)
+                    Date = (DateTime)od.Order!.Date      
                 },
                 UnitPrice = od.UnitPrice,     // from orderdetails (not product)
                 Quantity = od.Quantity
             })
             .ToList();
     }
-}
 }
